@@ -23,7 +23,7 @@ public class AvcEncoder
 	public int GetH(){
 		return m_height;
 	}
-	private static MediaCodecInfo selectCodec(String mimeType) {
+	@SuppressLint("NewApi") private static MediaCodecInfo selectCodec(String mimeType) {
 	     int numCodecs = MediaCodecList.getCodecCount();
 	     for (int i = 0; i < numCodecs; i++) {
 	         MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
@@ -45,11 +45,9 @@ public class AvcEncoder
     private void swapYV12toI420(byte[] yv12bytes, byte[] i420bytes, int width, int height) 
     {      
     	System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height);
-    	int u_point = width * height;
-    	int v_point = width * height + width * height / 4;
-    	for(int i = 0 ; i < width * height  / 2 ;i+= 2){
-    		i420bytes[i + width * height] = yv12bytes[v_point++];
-    		i420bytes[i + width * height + 1] = yv12bytes[u_point++];
+    	for(int i = width * height ; i < width * height + width * height  / 2 ;i+= 2){
+    		i420bytes[i] = yv12bytes[i + 1];
+    		i420bytes[i + 1] = yv12bytes[i];
     	}
     	//System.arraycopy(yv12bytes, width*height+width*height/4, i420bytes, width*height,width*height/4);
     	//System.arraycopy(yv12bytes, width*height, i420bytes, width*height+width*height/4,width*height/4);  
@@ -59,7 +57,7 @@ public class AvcEncoder
      * match is found, this throws a test failure -- the set of formats known to the test
      * should be expanded for new platforms.
      */
-	private static int selectColorFormat(MediaCodecInfo codecInfo, String mimeType) {
+	@SuppressLint("NewApi") private static int selectColorFormat(MediaCodecInfo codecInfo, String mimeType) {
         MediaCodecInfo.CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(mimeType);
         for (int i = 0; i < capabilities.colorFormats.length; i++) {
             int colorFormat = capabilities.colorFormats[i];
@@ -127,7 +125,7 @@ public class AvcEncoder
 	public int offerEncoderFFMPEG(byte[] input,byte[] output){
 		return 0;
 	}
-	public int offerEncoder(byte[] input,byte[] output){
+	@SuppressLint("NewApi") public int offerEncoder(byte[] input,byte[] output){
 		int count = 0;
 		int pos = 0;
 		try 

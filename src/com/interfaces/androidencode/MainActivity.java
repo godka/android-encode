@@ -60,7 +60,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 		m_surfaceHolder = m_prevewview.getHolder();
 		m_surfaceHolder.setFixedSize(width, height);
 		m_surfaceHolder.addCallback((Callback) this);	
-		mythArgs args = new mythArgs("192.168.1.112",10023,width,height,framerate,bitrate);
+		mythArgs args = new mythArgs("192.168.31.103",10024,width,height,framerate,bitrate);
 		//mythArgs args = new mythArgs("192.168.0.124",10023,width,height,framerate,bitrate);
 		sender = new mythSender(args,EncodeMode.HardwareMode);
 
@@ -93,7 +93,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			Camera.Parameters parameters = m_camera.getParameters();
 			parameters.setPreviewSize(width, height);
 			parameters.setPictureSize(width, height);
-			parameters.setPreviewFormat(ImageFormat.YV12);
+			parameters.setPreviewFormat(ImageFormat.NV21);
 			m_camera.setParameters(parameters);	
 			m_camera.setPreviewCallback((PreviewCallback) this);
 			m_camera.startPreview();
