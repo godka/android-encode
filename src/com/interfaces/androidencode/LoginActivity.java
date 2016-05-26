@@ -1,0 +1,41 @@
+package com.interfaces.androidencode;
+
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class LoginActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login_main);
+		final EditText iptext = (EditText)findViewById(R.id.editText1);
+		final EditText idtext = (EditText)findViewById(R.id.editText2);
+		iptext.setText("121.42.136.168");
+		idtext.setText("10024");
+		Button checkbutton = (Button)findViewById(R.id.button1);
+		checkbutton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putString("ip", iptext.getText().toString());
+				bundle.putString("id", idtext.getText().toString());
+				intent.putExtras(bundle);
+				intent.setClass(LoginActivity.this, MainActivity.class);
+				startActivity(intent);
+			}
+		});
+	}
+}

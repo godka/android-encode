@@ -60,7 +60,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 		m_surfaceHolder = m_prevewview.getHolder();
 		m_surfaceHolder.setFixedSize(width, height);
 		m_surfaceHolder.addCallback((Callback) this);	
-		mythArgs args = new mythArgs("192.168.31.103",10024,width,height,framerate,bitrate);
+
+		Bundle bundle = this.getIntent().getExtras();
+		String ip = bundle.getString("ip");
+		String id = bundle.getString("id");
+		mythArgs args = new mythArgs(ip,Integer.parseInt(id),width,height,framerate,bitrate);
 		//mythArgs args = new mythArgs("192.168.0.124",10023,width,height,framerate,bitrate);
 		sender = new mythSender(args,EncodeMode.HardwareMode);
 
