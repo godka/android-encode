@@ -9,7 +9,7 @@
 //com.encode.androidencode
 extern "C"{
 JNIEXPORT void JNICALL Java_com_encode_androidencode_mythSender_NativeEncoderInit(JNIEnv * env, jobject obj,int width,int height);
-JNIEXPORT jbyteArray JNICALL Java_com_encode_androidencode_mythSender_NativeProcessFrame(JNIEnv * env, jobject obj,jbyteArray data);
+JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_NativeProcessFrame(JNIEnv * env, jobject obj,jbyteArray data);
 JNIEXPORT void JNICALL Java_com_encode_androidencode_mythSender_NativeEncoderClose(JNIEnv * env, jobject obj);
 }
 //void swap(char* yv12bytes, char* i420bytes, int width, int height);
@@ -21,9 +21,9 @@ JNIEXPORT void JNICALL Java_com_encode_androidencode_mythSender_NativeEncoderIni
 		int width,int height){
 	mwidth = width;mheight = height;
 	ffmpegenc = mythFFmpegEncoder::CreateNew(NULL,mwidth,mheight);
-	file = fopen("/sdcard/test.h264","w");
+	//file = fopen("/sdcard/test.h264","w");
 }
-JNIEXPORT jbyteArray JNICALL Java_com_encode_androidencode_mythSender_NativeProcessFrame(JNIEnv * env, jobject obj,
+JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_NativeProcessFrame(JNIEnv * env, jobject obj,
 		jbyteArray data){
 	char* mdata= (char*)env->GetByteArrayElements(data, 0);
 	int len = env->GetArrayLength(data);
@@ -33,15 +33,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_encode_androidencode_mythSender_NativeProc
 	char* retdata;int retlen;
 	if(ffmpegenc->ProcessFrameAsync((unsigned char**)src,srclen,&retdata,&retlen) > 0){
 		if(retlen > 0){
-			fwrite(retdata,1,retlen,file);
-			LOGE("write file success,filelen = %d\n",retlen);
-			jbyteArray byteArray = env->NewByteArray(retlen);
-			env->SetByteArrayRegion(byteArray, 0, retlen, (jbyte*)retdata);
-			env->ReleaseByteArrayElements(data, (jbyte*)mdata, 0);
-			return byteArray;
+			//fwrite(retdata,1,retlen,file);
+			//LOGE("write file success,filelen = %d\n",retlen);
+			//jbyteArray byteArray = env->NewByteArray(retlen);
+			env->SetByteArrayRegion(data, 0, retlen, (jbyte*)retdata);
+			//env->ReleaseByteArrayElements(data, (jbyte*)mdata, 0);
+			return retlen;
 		}
 	}
-	env->ReleaseByteArrayElements(data, (jbyte*)mdata, 0);
+	//env->ReleaseByteArrayElements(data, (jbyte*)mdata, 0);
 	return NULL;
 }
 

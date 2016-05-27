@@ -54,12 +54,12 @@ public class mythSender implements Runnable{
 							switch(m_mode){
 							case AutoMode:
 							case SoftwareMode:
-								byte[] ret = NativeProcessFrame(tmp);
-								if(ret != null){
-									if(ret.length > 0){
-										m_packet.SendPacket(ret);
-									}
+								int ret = NativeProcessFrame(tmp);
+								//if(ret != null){
+								if(ret > 0){
+									m_packet.SendPacket(tmp,ret);
 								}
+								//}
 								break;
 							case HardwareMode:
 								if(m_avcencoder != null){
@@ -95,7 +95,7 @@ public class mythSender implements Runnable{
     }
 
     public static native void NativeEncoderInit(int width,int height);
-    public static native byte[] NativeProcessFrame(byte[] data);
+    public static native int NativeProcessFrame(byte[] data);
     public static native void NativeEncoderClose();
 	
 }

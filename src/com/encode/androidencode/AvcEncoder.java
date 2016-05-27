@@ -49,8 +49,6 @@ public class AvcEncoder
     		i420bytes[i] = yv12bytes[i + 1];
     		i420bytes[i + 1] = yv12bytes[i];
     	}
-    	//System.arraycopy(yv12bytes, width*height+width*height/4, i420bytes, width*height,width*height/4);
-    	//System.arraycopy(yv12bytes, width*height, i420bytes, width*height+width*height/4,width*height/4);  
     }
     /**
      * Returns a color format that is supported by the codec and by this test code.  If no
@@ -125,7 +123,8 @@ public class AvcEncoder
 	public int offerEncoderFFMPEG(byte[] input,byte[] output){
 		return 0;
 	}
-	@SuppressLint("NewApi") public int offerEncoder(byte[] input,byte[] output){
+	@SuppressLint("NewApi") 
+	public int offerEncoder(byte[] input,byte[] output){
 		int count = 0;
 		int pos = 0;
 		try 
