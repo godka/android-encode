@@ -27,6 +27,7 @@ public class mythPackage {
 	 
 	public int Connect(){
 		try {
+			m_isFirst = true;
 			InetAddress theaddress = InetAddress.getByName(m_ip);
 			InetSocketAddress address = new InetSocketAddress(theaddress,5834);
 			 

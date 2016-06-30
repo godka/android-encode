@@ -19,16 +19,8 @@ public class mythSender implements Runnable{
 		super();
 		m_args = args;
 		m_mode = Mode;
-		switch(Mode){
-		case AutoMode:
-		case SoftwareMode:
-			NativeEncoderInit(args.getW() , args.getH());
-			break;
-		case HardwareMode:
-			m_avcencoder = new AvcEncoder(args.getW(), args.getH(), args.GetFrameRate(), args.GetBitrate());
-			h264 = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
-			break;
-		}
+		m_avcencoder = new AvcEncoder(args.getW(), args.getH(), args.GetFrameRate(), args.GetBitrate());
+		h264 = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
 		m_packet = new mythPackage(args.getIP(), args.getCameraID());
 		m_packet.Connect();
 		m_list = new LinkedList<byte[]>();
@@ -50,25 +42,11 @@ public class mythSender implements Runnable{
 					if(tmp != null){
 						if(m_packet != null){
 							long t1 = SystemClock.uptimeMillis();
-							
-							switch(m_mode){
-							case AutoMode:
-							case SoftwareMode:
-								int ret = NativeProcessFrame(tmp);
-								//if(ret != null){
-								if(ret > 0){
-									m_packet.SendPacket(tmp,ret);
+							if(m_avcencoder != null){
+								int ret1 = m_avcencoder.offerEncoder(tmp,h264);
+								if(ret1 > 0){
+									m_packet.SendPacket(h264, ret1);
 								}
-								//}
-								break;
-							case HardwareMode:
-								if(m_avcencoder != null){
-									int ret1 = m_avcencoder.offerEncoder(tmp,h264);
-									if(ret1 > 0){
-										m_packet.SendPacket(h264, ret1);
-									}
-								}
-								break;
 							}
 							long t2 = SystemClock.uptimeMillis();
 							Log.v("h264", t2 - t1 + "ms");
@@ -88,7 +66,8 @@ public class mythSender implements Runnable{
 		}
 		m_packet.Close();
 	}  
-
+	//delete software mode
+/*
     static {
 		System.loadLibrary("ffmpeg");
         System.loadLibrary("main");
@@ -97,5 +76,6 @@ public class mythSender implements Runnable{
     public static native void NativeEncoderInit(int width,int height);
     public static native int NativeProcessFrame(byte[] data);
     public static native void NativeEncoderClose();
+    */
 	
 }
