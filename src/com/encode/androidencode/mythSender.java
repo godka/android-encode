@@ -25,6 +25,9 @@ public class mythSender implements Runnable{
 		m_packet.Connect();
 		m_list = new LinkedList<byte[]>();
 	}
+	public AvcEncoder GetAvcEncoder(){
+		return m_avcencoder;
+	}
 	public void Stop(){
 		blinker = true;
 	}

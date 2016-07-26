@@ -3,6 +3,7 @@ package com.encode.androidencode;
 import java.nio.ByteBuffer;
 
 import android.annotation.SuppressLint;
+import android.graphics.ImageFormat;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -15,6 +16,7 @@ public class AvcEncoder
 	private MediaCodec mediaCodec;
 	int m_width;
 	int m_height;
+	int m_format;
 	byte[] m_info = null;
 	byte[] m_yv12 = null;
 	public int GetW(){
@@ -22,6 +24,9 @@ public class AvcEncoder
 	}
 	public int GetH(){
 		return m_height;
+	}
+	public void SetFormat(int _format){
+		m_format = _format;
 	}
 	@SuppressLint("NewApi") private static MediaCodecInfo selectCodec(String mimeType) {
 	     int numCodecs = MediaCodecList.getCodecCount();
@@ -43,22 +48,29 @@ public class AvcEncoder
 	 }
 
     private void swapYV12toI420(byte[] yv12bytes, byte[] i420bytes, int width, int height) 
-    {      
-    	System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height);
-    	for(int i = width * height ; i < width * height + width * height  / 2 ;i+= 2){
-    		i420bytes[i] = yv12bytes[i + 1];
-    		i420bytes[i + 1] = yv12bytes[i];
+    {
+    	switch(m_format){
+    	case ImageFormat.NV21:
+    		System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height);
+    		for(int i = width * height ; i < width * height + width * height  / 2 ;i+= 2){
+    			i420bytes[i] = yv12bytes[i + 1];
+    			i420bytes[i + 1] = yv12bytes[i];
+    		}
+    		break;
+    	case ImageFormat.YV12:
+    		System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height*3/2);
+    		System.arraycopy(yv12bytes, width*height*5/4, i420bytes, width*height,width*height/4);
+    		System.arraycopy(yv12bytes, width*height, i420bytes, width*height*5/4,width*height/4);
+    		break;
     	}
-    	//System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height*3/2);
-    	//System.arraycopy(yv12bytes, width*height*5/4, i420bytes, width*height,width*height/4);
-    	//System.arraycopy(yv12bytes, width*height, i420bytes, width*height*5/4,width*height/4);
     }
     /**
      * Returns a color format that is supported by the codec and by this test code.  If no
      * match is found, this throws a test failure -- the set of formats known to the test
      * should be expanded for new platforms.
      */
-	@SuppressLint("NewApi") private static int selectColorFormat(MediaCodecInfo codecInfo, String mimeType) {
+	@SuppressLint("NewApi") 
+	private static int selectColorFormat(MediaCodecInfo codecInfo, String mimeType) {
         MediaCodecInfo.CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(mimeType);
         for (int i = 0; i < capabilities.colorFormats.length; i++) {
             int colorFormat = capabilities.colorFormats[i];
@@ -74,7 +86,9 @@ public class AvcEncoder
     /**
      * Returns true if this is a color format that this test code understands (i.e. we know how
      * to read and generate frames in this format).
-     */private static boolean isRecognizedFormat(int colorFormat) {
+     */
+	private static boolean isRecognizedFormat(int colorFormat) 
+     {
         switch (colorFormat) 
         {
             // these are the formats we know how to handle for this testcase MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar:
@@ -94,6 +108,7 @@ public class AvcEncoder
 		
 		m_width  = width;
 		m_height = height;
+		m_format = ImageFormat.NV21;
 		String mime = "video/avc";
 		m_yv12 = new byte[width * height * 3 / 2];
 		int format = selectColorFormat(selectCodec(mime),mime);
