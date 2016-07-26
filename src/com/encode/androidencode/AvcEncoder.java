@@ -49,6 +49,9 @@ public class AvcEncoder
     		i420bytes[i] = yv12bytes[i + 1];
     		i420bytes[i + 1] = yv12bytes[i];
     	}
+    	//System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height*3/2);
+    	//System.arraycopy(yv12bytes, width*height*5/4, i420bytes, width*height,width*height/4);
+    	//System.arraycopy(yv12bytes, width*height, i420bytes, width*height*5/4,width*height/4);
     }
     /**
      * Returns a color format that is supported by the codec and by this test code.  If no

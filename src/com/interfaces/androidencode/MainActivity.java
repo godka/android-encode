@@ -3,12 +3,15 @@ package com.interfaces.androidencode;
 import java.io.IOException;
 
 import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.Window;
@@ -97,10 +100,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			Camera.Parameters parameters = m_camera.getParameters();
 			parameters.setPreviewSize(width, height);
 			parameters.setPictureSize(width, height);
-			parameters.setPreviewFormat(ImageFormat.NV21);
+			//parameters.setPreviewFormat(ImageFormat.NV21);
+			//PixelFormat.YCbCr_420_SP
+			//parameters.setPreviewFormat(PixelFormat.YCbCr_420_SP);
 			m_camera.setParameters(parameters);	
 			m_camera.setPreviewCallback((PreviewCallback) this);
 			m_camera.startPreview();
+
+			int t = parameters.getPreviewFormat();
+			Log.e("hihihi", t+"");
 			
 		} catch (IOException e) 
 		{
@@ -124,6 +132,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) 
 	{
+		//YuvImage image = new YuvImage(data, ImageFormat.NV21, width, height, null);
 		sender.AddData(data);
 	}
 
