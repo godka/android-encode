@@ -11,14 +11,6 @@
         android:layout_y="117dp"
         android:ems="10" />
 
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="66dp"
-        android:layout_y="167dp"
-        android:ems="10" />
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -35,14 +27,6 @@
         android:layout_y="181dp"
         android:text="id" />
 
-    <CheckBox
-        android:id="@+id/checkBox1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="167dp"
-        android:layout_y="215dp"
-        android:text="compatibility" />
-
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
@@ -50,5 +34,16 @@
         android:layout_x="228dp"
         android:layout_y="306dp"
         android:text="connect" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="71dp"
+        android:layout_y="171dp"
+        android:ems="10" >
+
+        <requestFocus />
+    </EditText>
 
 </AbsoluteLayout>

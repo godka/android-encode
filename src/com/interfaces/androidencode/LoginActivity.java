@@ -23,7 +23,7 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.login_main);
 		final EditText iptext = (EditText)findViewById(R.id.editText1);
 		final EditText idtext = (EditText)findViewById(R.id.editText2);
-		final CheckBox checkbox = (CheckBox)findViewById(R.id.checkBox1);
+		//final CheckBox checkbox = (CheckBox)findViewById(R.id.checkBox1);
 		
 		//final boolean isComp = false;
 		iptext.setText("121.42.136.168");
@@ -34,12 +34,12 @@ public class LoginActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				boolean isComp = checkbox.isChecked();
+				//boolean isComp = checkbox.isChecked();
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putString("ip", iptext.getText().toString());
 				bundle.putString("id", idtext.getText().toString());
-				bundle.putBoolean("Comp", isComp);
+				//bundle.putBoolean("Comp", isComp);
 				intent.putExtras(bundle);
 				intent.setClass(LoginActivity.this, MainActivity.class);
 				startActivity(intent);

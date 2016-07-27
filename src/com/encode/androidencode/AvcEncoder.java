@@ -98,6 +98,7 @@ public class AvcEncoder
             case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
             case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar:
             case MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar:
+            //case MediaCodecInfo.CodecCapabilities.
                 return true;
             default:
                 return false;
