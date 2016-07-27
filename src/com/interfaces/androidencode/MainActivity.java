@@ -92,8 +92,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 	
 	}
 	@SuppressLint("InlinedApi")
-	private Integer GetCamerFormat(Camera.Parameters parameters){
-		/*
+	private Integer GetCameraFormat(Camera.Parameters parameters){
+		
 		List<Integer> t = parameters.getSupportedPreviewFormats();
 		int format = 17;
 		for(int i = 0;i<t.size();i++){
@@ -106,12 +106,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			}
 		}
 		return format;
-		*/
+		/*
 		if(comp){
 			return ImageFormat.YV12;
 		}else{
 			return ImageFormat.NV21;
 		}
+		*/
 	}
 	@SuppressLint("NewApi")
 	@Override
@@ -124,14 +125,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			Camera.Parameters parameters = m_camera.getParameters();
 			parameters.setPreviewSize(width, height);
 			parameters.setPictureSize(width, height);
-			
-			parameters.setPreviewFormat(GetCamerFormat(parameters));
+
+			parameters.setPreviewFormat(GetCameraFormat(parameters));
+			parameters.setPictureFormat(GetCameraFormat(parameters));
 			//PixelFormat.YCbCr_420_SP
 			//parameters.setPreviewFormat(PixelFormat.YCbCr_420_SP);
 			m_camera.setParameters(parameters);	
 			m_camera.setPreviewCallback((PreviewCallback) this);
 			m_camera.startPreview();
-			sender.GetAvcEncoder().SetFormat(parameters.getPreviewFormat());
+			//sender.GetAvcEncoder().SetFormat(parameters.getPreviewFormat());
 			//int t = parameters.getPreviewFormat();
 			//Log.e("hihihi", t+"");
 			
@@ -152,13 +154,31 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 		//t.stop();
 		finish();
 	}
-
-	
+	private void Swap(byte[] data,int src,int dst){
+		byte t = data[src];  
+        data[src] = data[dst];  
+        data[dst] = t;  
+	}
+	private void swapFormat(Camera camera,byte[] _bytes, int width, int height) 
+    {
+		int m_format = camera.getParameters().getPreviewFormat();
+    	switch(m_format){
+    	case ImageFormat.NV21:
+    		for(int i = width * height ; i < width * height + width * height  / 2 ;i+= 2){
+    			Swap(_bytes,i,i+1);
+    		}
+    		break;
+    	case ImageFormat.YV12:
+    		for(int i = width * height ; i < width * height + width * height  / 4 ;i++){
+    			Swap(_bytes,i,i + width*height / 4);
+    		}
+    		break;
+    	}
+    }
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) 
 	{
-		//camera.getParameters().getSupportedPreviewFormats();
-		//YuvImage image = new YuvImage(data, ImageFormat.NV21, width, height, null);
+		swapFormat(camera,data,width,height);
 		sender.AddData(data);
 	}
 

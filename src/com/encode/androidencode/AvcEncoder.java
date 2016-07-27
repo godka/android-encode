@@ -16,18 +16,18 @@ public class AvcEncoder
 	private MediaCodec mediaCodec;
 	int m_width;
 	int m_height;
-	int m_format;
+	//int m_format;
 	byte[] m_info = null;
-	byte[] m_yv12 = null;
+	//byte[] m_yv12 = null;
 	public int GetW(){
 		return m_width;
 	}
 	public int GetH(){
 		return m_height;
 	}
-	public void SetFormat(int _format){
-		m_format = _format;
-	}
+	//public void SetFormat(int _format){
+	//	m_format = _format;
+	//}
 	@SuppressLint("NewApi") private static MediaCodecInfo selectCodec(String mimeType) {
 	     int numCodecs = MediaCodecList.getCodecCount();
 	     for (int i = 0; i < numCodecs; i++) {
@@ -46,7 +46,7 @@ public class AvcEncoder
 	     }
 	     return null;
 	 }
-
+/*
     private void swapYV12toI420(byte[] yv12bytes, byte[] i420bytes, int width, int height) 
     {
     	switch(m_format){
@@ -64,6 +64,7 @@ public class AvcEncoder
     		break;
     	}
     }
+    */
     /**
      * Returns a color format that is supported by the codec and by this test code.  If no
      * match is found, this throws a test failure -- the set of formats known to the test
@@ -108,9 +109,9 @@ public class AvcEncoder
 		
 		m_width  = width;
 		m_height = height;
-		m_format = ImageFormat.NV21;
+		//m_format = ImageFormat.NV21;
 		String mime = "video/avc";
-		m_yv12 = new byte[width * height * 3 / 2];
+		//m_yv12 = new byte[width * height * 3 / 2];
 		int format = selectColorFormat(selectCodec(mime),mime);
 	    mediaCodec = MediaCodec.createEncoderByType(mime);
 	    MediaFormat mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
@@ -147,7 +148,7 @@ public class AvcEncoder
 		int pos = 0;
 		try 
 		{
-			swapYV12toI420(input,m_yv12,m_width,m_height);
+			//swapYV12toI420(input,m_yv12,m_width,m_height);
 				ByteBuffer[] inputBuffers = mediaCodec.getInputBuffers();
 				//Log.i("inputBufferssize", "" + inputBuffers.length);
 				ByteBuffer[] outputBuffers = mediaCodec.getOutputBuffers();
@@ -157,8 +158,8 @@ public class AvcEncoder
 				if (inputBufferIndex >= 0) {
 						ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
 						inputBuffer.clear();
-						inputBuffer.put(m_yv12);
-						mediaCodec.queueInputBuffer(inputBufferIndex, 0, m_yv12.length,0, 0);
+						inputBuffer.put(input);
+						mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length,0, 0);
 				}
 
 				MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
@@ -196,9 +197,9 @@ public class AvcEncoder
 				int key = output[4] & 0x1F;
 				if (key == 5) // key frame2
 				{
-					System.arraycopy(output, 0, m_yv12, 0, pos);
+					System.arraycopy(output, 0, input, 0, pos);
 					System.arraycopy(m_info, 0, output, 0, m_info.length);
-					System.arraycopy(m_yv12, 0, output, m_info.length, pos);
+					System.arraycopy(input, 0, output, m_info.length, pos);
 					pos += m_info.length;
 				}
 				
