@@ -121,7 +121,7 @@ public class AvcEncoder
 	    if(format > 0)
 	    	mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,format);  
 	    else
-	    	mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
+	    	mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar);
 	    mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 	    try{
 	    	mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
