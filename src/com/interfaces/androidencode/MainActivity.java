@@ -127,7 +127,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			parameters.setPictureSize(width, height);
 
 			parameters.setPreviewFormat(GetCameraFormat(parameters));
-			parameters.setPictureFormat(GetCameraFormat(parameters));
+			//parameters.setPictureFormat(GetCameraFormat(parameters));
 			//PixelFormat.YCbCr_420_SP
 			//parameters.setPreviewFormat(PixelFormat.YCbCr_420_SP);
 			m_camera.setParameters(parameters);	
