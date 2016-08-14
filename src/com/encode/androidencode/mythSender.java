@@ -9,16 +9,12 @@ import android.util.Log;
 
 public class mythSender implements Runnable{
 	private boolean blinker = false;
-	private EncodeMode m_mode;
-	private mythArgs m_args;
 	private mythPackage m_packet = null;
 	private AvcEncoder m_avcencoder = null;
 	private byte[] h264 = null;
 	List<byte[]> m_list = null;
 	public mythSender(mythArgs args,EncodeMode Mode){
 		super();
-		m_args = args;
-		m_mode = Mode;
 		m_avcencoder = new AvcEncoder(args.getW(), args.getH(), args.GetFrameRate(), args.GetBitrate());
 		h264 = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
 		m_packet = new mythPackage(args.getIP(), args.getCameraID());
@@ -69,16 +65,4 @@ public class mythSender implements Runnable{
 		}
 		m_packet.Close();
 	}  
-	//delete software mode
-/*
-    static {
-		System.loadLibrary("ffmpeg");
-        System.loadLibrary("main");
-    }
-
-    public static native void NativeEncoderInit(int width,int height);
-    public static native int NativeProcessFrame(byte[] data);
-    public static native void NativeEncoderClose();
-    */
-	
 }
