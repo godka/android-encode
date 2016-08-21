@@ -125,8 +125,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			Camera.Parameters parameters = m_camera.getParameters();
 			parameters.setPreviewSize(width, height);
 			parameters.setPictureSize(width, height);
-
-			parameters.setPreviewFormat(PixelFormat.YCbCr_420_SP);
+			
+			parameters.setPreviewFormat(ImageFormat.NV21);
 			//parameters.setPreviewFormat(GetCameraFormat(parameters));
 			//parameters.setPictureFormat(GetCameraFormat(parameters));
 			//PixelFormat.YCbCr_420_SP
@@ -179,7 +179,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) 
 	{
-		//swapFormat(camera,data,width,height);
+		swapFormat(camera,data,width,height);
 		sender.AddData(data);
 	}
 

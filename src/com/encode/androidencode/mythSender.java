@@ -1,7 +1,6 @@
 package com.encode.androidencode;
 import java.util.LinkedList;
-import java.util.List;
-
+import java.util.Queue;
 import com.interfaces.androidencode.mythPackage;
 
 import android.os.SystemClock;
@@ -12,7 +11,7 @@ public class mythSender implements Runnable{
 	private mythPackage m_packet = null;
 	private AvcEncoder m_avcencoder = null;
 	private byte[] h264 = null;
-	List<byte[]> m_list = null;
+	Queue<byte[]> m_list = null;
 	public mythSender(mythArgs args,EncodeMode Mode){
 		super();
 		m_avcencoder = new AvcEncoder(args.getW(), args.getH(), args.GetFrameRate(), args.GetBitrate());
@@ -30,14 +29,14 @@ public class mythSender implements Runnable{
 	public void AddData(byte[] data){
 		byte[] newbyte = new byte[data.length];
 		System.arraycopy(data, 0, newbyte, 0, data.length);
-		m_list.add(newbyte);
+		m_list.offer(newbyte);
 	}
 	@Override
 	public void run() {
         while (blinker == false) {
 			try{
-				if(!m_list.isEmpty()){
-					byte[] tmp = m_list.get(0);
+				//if(!m_list.isEmpty()){
+					byte[] tmp = m_list.poll();
 					if(tmp != null){
 						if(m_packet != null){
 							long t1 = SystemClock.uptimeMillis();
@@ -50,14 +49,13 @@ public class mythSender implements Runnable{
 							long t2 = SystemClock.uptimeMillis();
 							Log.v("h264", t2 - t1 + "ms");
 						}
-						m_list.remove(0);
 						if(m_list.size() >= 10){
 							for(int i = 0;i < 9;i++)
-								m_list.remove(0);
+								m_list.poll();
 						}
 						System.gc();
 					}
-				}
+				//}
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
