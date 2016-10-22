@@ -5,45 +5,26 @@
 
     <EditText
         android:id="@+id/editText1"
-        android:layout_width="wrap_content"
+        android:layout_width="278dp"
         android:layout_height="wrap_content"
-        android:layout_x="68dp"
-        android:layout_y="117dp"
+        android:layout_x="22dp"
+        android:layout_y="170dp"
         android:ems="10" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="32dp"
-        android:layout_y="127dp"
-        android:text="ip" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="32dp"
-        android:layout_y="181dp"
-        android:text="id" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_x="228dp"
-        android:layout_y="306dp"
+        android:layout_x="196dp"
+        android:layout_y="279dp"
         android:text="connect" />
 
-    <EditText
-        android:id="@+id/editText2"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_x="71dp"
-        android:layout_y="171dp"
-        android:ems="10" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_x="33dp"
+        android:layout_y="144dp"
+        android:text="rtmplink" />
 
 </AbsoluteLayout>

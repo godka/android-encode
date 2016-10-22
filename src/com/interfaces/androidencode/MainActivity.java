@@ -20,7 +20,6 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 import com.encode.androidencode.AvcEncoder;
-import com.encode.androidencode.EncodeMode;
 import com.encode.androidencode.mythArgs;
 import com.encode.androidencode.mythSender;
 
@@ -34,9 +33,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     Thread t;
     int width = 640;
     int height = 480;
-    int framerate = 25;
-    int bitrate = 400000;
-    mythPackage packet = null;
+    int framerate = 20;
+    int bitrate = 1000 * 300;
     mythSender sender = null;
     //private byte[] h264 = new byte[width * height * 3 / 2];
 	@SuppressLint("NewApi")
@@ -67,12 +65,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 		m_surfaceHolder.addCallback((Callback) this);	
 
 		Bundle bundle = this.getIntent().getExtras();
-		String ip = bundle.getString("ip");
-		String id = bundle.getString("id");
+		String link = bundle.getString("rtmplink");
 		comp = bundle.getBoolean("Comp");
-		mythArgs args = new mythArgs(ip,Integer.parseInt(id),width,height,framerate,bitrate);
+		mythArgs args = new mythArgs(link,width,height,framerate,bitrate);
 		//mythArgs args = new mythArgs("192.168.0.124",10023,width,height,framerate,bitrate);
-		sender = new mythSender(args,EncodeMode.HardwareMode);
+		sender = new mythSender(args);
 
 		t = new Thread(sender);
 		t.start();
@@ -126,7 +123,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 			parameters.setPreviewSize(width, height);
 			parameters.setPictureSize(width, height);
 			
-			parameters.setPreviewFormat(ImageFormat.NV21);
+			parameters.setPreviewFormat(ImageFormat.YV12);
 			//parameters.setPreviewFormat(GetCameraFormat(parameters));
 			//parameters.setPictureFormat(GetCameraFormat(parameters));
 			//PixelFormat.YCbCr_420_SP
@@ -160,6 +157,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         data[src] = data[dst];  
         data[dst] = t;  
 	}
+	@SuppressWarnings("unused")
 	private void swapFormat(Camera camera,byte[] _bytes, int width, int height) 
     {
 		int m_format = camera.getParameters().getPreviewFormat();
@@ -179,7 +177,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) 
 	{
-		swapFormat(camera,data,width,height);
+		//swapFormat(camera,data,width,height);
 		sender.AddData(data);
 	}
 

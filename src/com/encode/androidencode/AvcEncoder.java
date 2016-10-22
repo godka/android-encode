@@ -1,9 +1,9 @@
 package com.encode.androidencode;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import android.annotation.SuppressLint;
-import android.graphics.ImageFormat;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -12,18 +12,23 @@ import android.util.Log;
 
 public class AvcEncoder 
 {
-
+	private boolean firstIframe = true;
 	private MediaCodec mediaCodec;
 	int m_width;
 	int m_height;
 	//int m_format;
 	byte[] m_info = null;
+	private int format;
+	private long presentationTimeUs;
 	//byte[] m_yv12 = null;
 	public int GetW(){
 		return m_width;
 	}
 	public int GetH(){
 		return m_height;
+	}
+	public int GetColor(){
+		return format;
 	}
 	//public void SetFormat(int _format){
 	//	m_format = _format;
@@ -113,21 +118,23 @@ public class AvcEncoder
 		//m_format = ImageFormat.NV21;
 		String mime = "video/avc";
 		//m_yv12 = new byte[width * height * 3 / 2];
-		int format = selectColorFormat(selectCodec(mime),mime);
+		format = selectColorFormat(selectCodec(mime),mime);
 	    mediaCodec = MediaCodec.createEncoderByType(mime);
 	    MediaFormat mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
 	    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
+	    //mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0);
 	    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
 	    if(format > 0)
 	    	mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,format);  
 	    else
 	    	mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar);
-	    mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+	    mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 5);
 	    try{
 	    	mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 	    }catch(Exception ee){
 	    	ee.printStackTrace();
 	    }
+	    presentationTimeUs = new Date().getTime() * 1000;
 	    mediaCodec.start();
 	}
 
@@ -157,7 +164,8 @@ public class AvcEncoder
 						ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
 						inputBuffer.clear();
 						inputBuffer.put(input);
-						mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length,0, 0);
+						long pts = new Date().getTime() * 1000 - presentationTimeUs;		                
+						mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length,pts, 0);
 				}
 
 				MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();

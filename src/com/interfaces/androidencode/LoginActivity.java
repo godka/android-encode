@@ -22,12 +22,10 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_main);
 		final EditText iptext = (EditText)findViewById(R.id.editText1);
-		final EditText idtext = (EditText)findViewById(R.id.editText2);
 		//final CheckBox checkbox = (CheckBox)findViewById(R.id.checkBox1);
 		
 		//final boolean isComp = false;
-		iptext.setText("121.42.136.168");
-		idtext.setText("10024");
+		iptext.setText("rtmp://192.168.31.193/live/stream");
 		Button checkbutton = (Button)findViewById(R.id.button1);
 		checkbutton.setOnClickListener(new OnClickListener() {
 			
@@ -37,8 +35,7 @@ public class LoginActivity extends Activity {
 				//boolean isComp = checkbox.isChecked();
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putString("ip", iptext.getText().toString());
-				bundle.putString("id", idtext.getText().toString());
+				bundle.putString("rtmplink", iptext.getText().toString());
 				//bundle.putBoolean("Comp", isComp);
 				intent.putExtras(bundle);
 				intent.setClass(LoginActivity.this, MainActivity.class);

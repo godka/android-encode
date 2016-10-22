@@ -7,11 +7,11 @@ public class mythArgs {
 	private int mheight;
 	private int mframerate;
 	private int mbitrate;
-	public mythArgs(String ip,int CameraID,int width,int height,int framerate,int bitrate){
-		mip = ip;mcameraid = CameraID;mwidth=width;mheight = height;
+	public mythArgs(String RTMPLink,int width,int height,int framerate,int bitrate){
+		mip = RTMPLink;mwidth=width;mheight = height;
 		mframerate = framerate;mbitrate=bitrate;
 	}
-	public String getIP(){
+	public String getRTMPLink(){
 		return mip;
 	}
 	public int getCameraID(){
