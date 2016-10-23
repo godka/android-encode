@@ -15,10 +15,13 @@ extern "C"{
 }
 int InitSrsRTMP(const char* rtmpurl);
 srs_rtmp_t rtmp = NULL;
+FILE* file = NULL;
 char* url;
 void Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len,long pts){
 	if (rtmp){
 		char* pdata = (char*) env->GetByteArrayElements(data, 0);
+		//if (file)
+		//	fwrite(pdata, 1, len, file);
 		//int plength = env->GetArrayLength(data);
 		int plength = len;
 		int ret = srs_h264_write_raw_frames(rtmp, pdata, plength, pts, pts);
@@ -85,4 +88,5 @@ JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_RTMPInit(JNIEnv *
 {
 	url = (char*) env->GetStringUTFChars(rtmpurl, 0);
 	InitSrsRTMP(url);
+	//file = fopen("/sdcard/test.h264", "wb");
 }

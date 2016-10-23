@@ -27,7 +27,7 @@
             android:name="com.interfaces.androidencode.MainActivity"
         	android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:label="@string/app_name" 
-             android:screenOrientation="landscape">
+            android:screenOrientation="landscape">
         </activity>
         
         <activity
