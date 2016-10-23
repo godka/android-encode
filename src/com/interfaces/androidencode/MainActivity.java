@@ -1,8 +1,6 @@
 package com.interfaces.androidencode;
 
 import java.io.IOException;
-import java.util.List;
-
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
@@ -12,7 +10,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.SurfaceHolder;
-import android.view.Window;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
@@ -30,7 +27,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
 	Thread t;
 	int width = 640;
 	int height = 480;
-	int framerate = 25;
+	int framerate = 20;
 	int bitrate = 1000 * 300;
 	mythSender sender = null;
 
@@ -38,8 +35,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 				.detectDiskReads().detectDiskWrites().detectAll() // or
 																	// .detectAll()
@@ -63,13 +58,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
 		String link = bundle.getString("rtmplink");
 		comp = bundle.getBoolean("Comp");
 		mythArgs args = new mythArgs(link, width, height, framerate, bitrate);
-		// mythArgs args = new
-		// mythArgs("192.168.0.124",10023,width,height,framerate,bitrate);
 		sender = new mythSender(args);
-
-		t = new Thread(sender);
-		t.start();
-		// packet.Connect();
 
 	}
 
@@ -110,14 +99,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
 		m_camera.stopPreview();
 		m_camera.release();
 		m_camera = null;
-		sender.Stop();
-		// t.stop();
+		try {
+			sender.Stop();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		finish();
 	}
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		// swapFormat(camera,data,width,height);
 		sender.AddData(data);
 	}
 

@@ -7,13 +7,14 @@ import android.media.MediaCodecInfo;
 import android.os.SystemClock;
 import android.util.Log;
 
-public class mythSender implements Runnable {
+public class mythSender{
 	private boolean blinker = false;
 	private AvcEncoder m_avcencoder = null;
 	private byte[] h264 = null;
 	Queue<byte[]> m_list = null;
 	private long presentationTimeUs;
-
+	private boolean isrtmpon = false;
+	private byte[] frame = null;
 	public mythSender(mythArgs args) {
 		super();
 		m_avcencoder = new AvcEncoder(args.getW(), args.getH(),
@@ -23,18 +24,20 @@ public class mythSender implements Runnable {
 		Log.v("rtmplink", args.getRTMPLink());
 		m_list = new LinkedList<byte[]>();
 		presentationTimeUs = SystemClock.uptimeMillis();
+		isrtmpon = true;
 	}
 
 	public AvcEncoder GetAvcEncoder() {
 		return m_avcencoder;
 	}
 
-	public void Stop() {
-		blinker = true;
+	public void Stop() throws InterruptedException {
+		RTMPClose();
 	}
 
 	public void AddData(byte[] data) {
-		byte[] frame = new byte[data.length];
+		if(frame == null)
+			frame = new byte[data.length];
 		int vcolor = m_avcencoder.GetColor();
 		int width = m_avcencoder.GetW();
 		int height = m_avcencoder.GetH();
@@ -47,7 +50,13 @@ public class mythSender implements Runnable {
 		} else {
 			System.arraycopy(data, 0, frame, 0, data.length);
 		}
-		m_list.offer(frame);
+		//m_list.offer(frame);
+		int ret1 = m_avcencoder.offerEncoder(frame, h264);
+		if (ret1 > 0) {
+			long pts = SystemClock.uptimeMillis()
+					- presentationTimeUs;
+			RTMPProcess(h264, ret1, pts);
+		}
 	}
 
 	// the color transform, @see
@@ -88,35 +97,7 @@ public class mythSender implements Runnable {
 
 		return output;
 	}
-
-	@Override
-	public void run() {
-		while (blinker == false) {
-			try {
-				byte[] tmp = m_list.poll();
-				if (tmp != null) {
-					if (m_avcencoder != null) {
-						int ret1 = m_avcencoder.offerEncoder(tmp, h264);
-						if (ret1 > 0) {
-							long pts = SystemClock.uptimeMillis()
-									- presentationTimeUs;
-							RTMPProcess(h264, ret1, pts);
-						}
-					}
-				}
-				if (m_list.size() >= 10) {
-					for (int i = 0; i < 9; i++)
-						m_list.poll();
-				}
-				System.gc();
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		RTMPClose();
-	}
-
+	
 	static {
 		System.loadLibrary("main");
 	}

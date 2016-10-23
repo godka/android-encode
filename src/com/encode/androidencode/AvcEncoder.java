@@ -165,38 +165,21 @@ public class AvcEncoder {
 				inputBuffer.clear();
 				inputBuffer.put(input);
 				long pts = new Date().getTime() * 1000 - presentationTimeUs;
-				mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length,
-						pts, 0);
+				mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length, pts, 0);
 			}
+			ByteBuffer outputBuffer = null;
 			for (;;) {
 				int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
 				if (outputBufferIndex >= 0) {
-					ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
-					byte[] outData = new byte[bufferInfo.size];
-					outputBuffer.get(outData);
-					if (m_info != null) {
-						System.arraycopy(outData, 0, output, pos, outData.length);
-						pos += outData.length;
-					} else {
-						m_info = new byte[outData.length];//first packet
-						System.arraycopy(outData, 0, m_info, 0, outData.length);
-					}
-					
+					outputBuffer = outputBuffers[outputBufferIndex];
+					outputBuffer.get(output,0, bufferInfo.size);
+					pos += bufferInfo.size;
 					mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
 					mediaCodec.flush();
 				} else {
 					break;
 				}
 			}
-			
-			  int key = output[4] & 0x1F; 
-			  if (key == 5){ // key frame 
-				  System.arraycopy(output, 0, input, 0, pos);
-				  System.arraycopy(m_info, 0, output, 0, m_info.length);
-				  System.arraycopy(input, 0, output, m_info.length, pos); 
-				  pos += m_info.length; 
-			  }
-			 
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
