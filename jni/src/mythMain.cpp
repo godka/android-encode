@@ -10,14 +10,13 @@
 //com.encode.androidencode
 extern "C"{
 	JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_RTMPInit(JNIEnv * env, jobject obj, jstring rtmpurl);
-	JNIEXPORT void JNICALL Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len, long pts);
+	JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len, long pts);
 	JNIEXPORT void JNICALL Java_com_encode_androidencode_mythSender_RTMPClose(JNIEnv * env, jobject obj);
 }
 int InitSrsRTMP(const char* rtmpurl);
 srs_rtmp_t rtmp = NULL;
 FILE* file = NULL;
-char* url;
-void Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len,long pts){
+int Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len,long pts){
 	if (rtmp){
 		char* pdata = (char*) env->GetByteArrayElements(data, 0);
 		//if (file)
@@ -25,6 +24,7 @@ void Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject 
 		//int plength = env->GetArrayLength(data);
 		int plength = len;
 		int ret = srs_h264_write_raw_frames(rtmp, pdata, plength, pts, pts);
+		/*
 		if (ret != 0) {
 			if (srs_h264_is_dvbsp_error(ret)) {
 				LOGE("ignore drop video error, code=%d\n", ret);
@@ -42,8 +42,11 @@ void Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject 
 				Java_com_encode_androidencode_mythSender_RTMPProcess(env, obj, data, len,pts);
 			}
 		}
+		*/
 		env->ReleaseByteArrayElements(data, (jbyte*) pdata, 0);
+		return ret;
 	}
+	return -1;
 }
 void Java_com_encode_androidencode_mythSender_RTMPClose(JNIEnv * env, jobject obj){
 	if (rtmp){
@@ -53,40 +56,34 @@ void Java_com_encode_androidencode_mythSender_RTMPClose(JNIEnv * env, jobject ob
 }
 int InitSrsRTMP(const char* rtmpurl)
 {
-	do{
-		do {
-			rtmp = srs_rtmp_create(rtmpurl);
+	do {
+		rtmp = srs_rtmp_create(rtmpurl);
 
-			if (srs_rtmp_handshake(rtmp) != 0) {
-				rtmp = NULL;
-				break;
-			}
-
-			if (srs_rtmp_connect_app(rtmp) != 0) {
-				rtmp = NULL;
-				break;
-			}
-			int ret = srs_rtmp_publish_stream(rtmp);
-			if (ret != 0) {
-				rtmp = NULL;
-				break;
-			}
-			return 0;
-		} while (0);
-		if (!rtmp){
-			usleep(1000 * 1000);
-			LOGE("Starting Reconnect RTMP Server,%s\n", url);
-		}
-		else{
+		if (srs_rtmp_handshake(rtmp) != 0) {
+			rtmp = NULL;
 			break;
 		}
-	} while (!rtmp);
+
+		if (srs_rtmp_connect_app(rtmp) != 0) {
+			rtmp = NULL;
+			break;
+		}
+		int ret = srs_rtmp_publish_stream(rtmp);
+		if (ret != 0) {
+			rtmp = NULL;
+			break;
+		}
+		return 0;
+	} while (0);
 	return 1;
 }
 JNIEXPORT int JNICALL Java_com_encode_androidencode_mythSender_RTMPInit(JNIEnv * env, jobject obj, 
 	jstring rtmpurl)
 {
-	url = (char*) env->GetStringUTFChars(rtmpurl, 0);
-	InitSrsRTMP(url);
+	int ret = 0;
+	char* url = (char*) env->GetStringUTFChars(rtmpurl, 0);
+	ret = InitSrsRTMP(url);
+	env->ReleaseStringUTFChars(rtmpurl, url);
+	return ret;
 	//file = fopen("/sdcard/test.h264", "wb");
 }

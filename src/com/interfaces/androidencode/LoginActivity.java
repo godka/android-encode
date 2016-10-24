@@ -19,7 +19,7 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.login_main);
 		final EditText iptext = (EditText) findViewById(R.id.editText1);
 		
-		iptext.setText("rtmp://192.168.31.193/live/stream");
+		iptext.setText("rtmp://1029.mythkast.net/live/stream");
 		Button checkbutton = (Button) findViewById(R.id.button1);
 		checkbutton.setOnClickListener(new OnClickListener() {
 

@@ -1,8 +1,4 @@
 package com.encode.androidencode;
-
-import java.util.LinkedList;
-import java.util.Queue;
-
 import android.media.MediaCodecInfo;
 import android.os.SystemClock;
 import android.util.Log;
@@ -11,18 +7,22 @@ public class mythSender{
 	private boolean blinker = false;
 	private AvcEncoder m_avcencoder = null;
 	private byte[] h264 = null;
-	Queue<byte[]> m_list = null;
 	private long presentationTimeUs;
 	private boolean isrtmpon = false;
 	private byte[] frame = null;
+	private String _rtmpurl;
 	public mythSender(mythArgs args) {
 		super();
 		m_avcencoder = new AvcEncoder(args.getW(), args.getH(),
 				args.GetFrameRate(), args.GetBitrate());
 		h264 = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
-		RTMPInit(args.getRTMPLink());
-		Log.v("rtmplink", args.getRTMPLink());
-		m_list = new LinkedList<byte[]>();
+		_rtmpurl = args.getRTMPLink();
+		try {
+			ConnectToRtmpUrl(_rtmpurl);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		presentationTimeUs = SystemClock.uptimeMillis();
 		isrtmpon = true;
 	}
@@ -30,7 +30,13 @@ public class mythSender{
 	public AvcEncoder GetAvcEncoder() {
 		return m_avcencoder;
 	}
-
+	public int ConnectToRtmpUrl(String rtmpurl) throws InterruptedException{
+		while(RTMPInit(rtmpurl) != 0){
+			Log.v("rtmp connect", "connecting to " + rtmpurl);
+			Thread.sleep(1000);
+		}
+		return 0;
+	}
 	public void Stop() throws InterruptedException {
 		RTMPClose();
 	}
@@ -55,8 +61,45 @@ public class mythSender{
 		if (ret1 > 0) {
 			long pts = SystemClock.uptimeMillis()
 					- presentationTimeUs;
-			RTMPProcess(h264, ret1, pts);
+			int ret = RTMPProcess(h264, ret1, pts);
+			if (ret != 0) {
+				if (h264_is_dvbsp_error(ret)) {
+					Log.v("ignore", "ignore drop video error, code=" + ret);
+				}
+				else if (is_duplicated_sps_error(ret)) {
+					Log.v("ignore", "ignore duplicated sps, code=" + ret);
+				}
+				else if (is_duplicated_pps_error(ret)) {
+					Log.v("ignore", "ignore duplicated pps, code=" + ret);
+				}
+				else {
+					Log.e("error", "send h264 raw data failed, code=" + ret);
+					try {
+						this.Stop();
+						Thread.sleep(1000);
+						this.ConnectToRtmpUrl(_rtmpurl);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
+	}
+
+	private boolean is_duplicated_pps_error(int ret) {
+		// TODO Auto-generated method stub
+		return ret == 3043;
+	}
+
+	private boolean is_duplicated_sps_error(int ret) {
+		// TODO Auto-generated method stub
+		return ret == 3044;
+	}
+
+	private boolean h264_is_dvbsp_error(int ret) {
+		// TODO Auto-generated method stub
+		return ret == 3045;
 	}
 
 	// the color transform, @see
@@ -104,7 +147,7 @@ public class mythSender{
 
 	public static native int RTMPInit(String rtmpurl);
 
-	public static native void RTMPProcess(byte[] data, int len, long pts);
+	public static native int RTMPProcess(byte[] data, int len, long pts);
 
 	public static native void RTMPClose();
 }
