@@ -19,30 +19,8 @@ FILE* file = NULL;
 int Java_com_encode_androidencode_mythSender_RTMPProcess(JNIEnv * env, jobject obj, jbyteArray data, int len,long pts){
 	if (rtmp){
 		char* pdata = (char*) env->GetByteArrayElements(data, 0);
-		//if (file)
-		//	fwrite(pdata, 1, len, file);
-		//int plength = env->GetArrayLength(data);
 		int plength = len;
 		int ret = srs_h264_write_raw_frames(rtmp, pdata, plength, pts, pts);
-		/*
-		if (ret != 0) {
-			if (srs_h264_is_dvbsp_error(ret)) {
-				LOGE("ignore drop video error, code=%d\n", ret);
-			}
-			else if (srs_h264_is_duplicated_sps_error(ret)) {
-				LOGE("ignore duplicated sps, code=%d\n", ret);
-			}
-			else if (srs_h264_is_duplicated_pps_error(ret)) {
-				LOGE("ignore duplicated pps, code=%d\n", ret);
-			}
-			else {
-				LOGE("send h264 raw data failed. code=%d\n", ret);
-				srs_rtmp_destroy(rtmp);
-				InitSrsRTMP(url);
-				Java_com_encode_androidencode_mythSender_RTMPProcess(env, obj, data, len,pts);
-			}
-		}
-		*/
 		env->ReleaseByteArrayElements(data, (jbyte*) pdata, 0);
 		return ret;
 	}

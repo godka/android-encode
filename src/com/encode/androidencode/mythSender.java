@@ -1,21 +1,24 @@
 package com.encode.androidencode;
+import java.util.Date;
+
 import android.media.MediaCodecInfo;
-import android.os.SystemClock;
 import android.util.Log;
 
 public class mythSender{
 	private boolean blinker = false;
 	private AvcEncoder m_avcencoder = null;
-	private byte[] h264 = null;
-	private long presentationTimeUs;
+	private byte[] out = null;
+	private long presentationTimeUs = 0;
 	private boolean isrtmpon = false;
 	private byte[] frame = null;
 	private String _rtmpurl;
+	private byte[] sps;
+	private byte[] pps;
 	public mythSender(mythArgs args) {
 		super();
 		m_avcencoder = new AvcEncoder(args.getW(), args.getH(),
 				args.GetFrameRate(), args.GetBitrate());
-		h264 = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
+		out = new byte[m_avcencoder.GetH() * m_avcencoder.GetW() * 3 / 2];
 		_rtmpurl = args.getRTMPLink();
 		try {
 			ConnectToRtmpUrl(_rtmpurl);
@@ -23,8 +26,7 @@ public class mythSender{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		presentationTimeUs = SystemClock.uptimeMillis();
-		isrtmpon = true;
+		isrtmpon = false;
 	}
 
 	public AvcEncoder GetAvcEncoder() {
@@ -57,36 +59,71 @@ public class mythSender{
 			System.arraycopy(data, 0, frame, 0, data.length);
 		}
 		//m_list.offer(frame);
-		int ret1 = m_avcencoder.offerEncoder(frame, h264);
+		int ret1 = m_avcencoder.offerEncoder(frame, out);
 		if (ret1 > 0) {
-			long pts = SystemClock.uptimeMillis()
-					- presentationTimeUs;
-			int ret = RTMPProcess(h264, ret1, pts);
-			if (ret != 0) {
-				if (h264_is_dvbsp_error(ret)) {
-					Log.v("ignore", "ignore drop video error, code=" + ret);
+			int nalu = out[4] & 0x1f;
+			if(nalu == 7){
+				if(sps == null){
+					sps = new byte[ret1];
+					System.arraycopy(out, 0, sps, 0, ret1);
 				}
-				else if (is_duplicated_sps_error(ret)) {
-					Log.v("ignore", "ignore duplicated sps, code=" + ret);
+			}else if(nalu == 8){
+				if(pps == null){
+					pps = new byte[ret1];
+					System.arraycopy(out, 0, pps, 0, ret1);
 				}
-				else if (is_duplicated_pps_error(ret)) {
-					Log.v("ignore", "ignore duplicated pps, code=" + ret);
+			}
+			if(this.isrtmpon == false){
+				if(nalu != 5 || sps == null){
+					if(nalu != 5)
+						Log.v("skip", "waiting for nalu" + nalu+"");
+					if(sps == null)
+						Log.v("skip", "waiting for sps");
+					if(pps == null)
+						Log.v("skip", "waiting for pps");
+					return;
+				}else{
+					this.SendRTMPPacket(sps, sps.length, 0);
+					if(pps != null)
+						this.SendRTMPPacket(pps, pps.length, 0);
+					this.SendRTMPPacket(out, ret1, 0);
+					presentationTimeUs = new Date().getTime();
+					this.isrtmpon = true;
 				}
-				else {
-					Log.e("error", "send h264 raw data failed, code=" + ret);
-					try {
-						this.Stop();
-						Thread.sleep(1000);
-						this.ConnectToRtmpUrl(_rtmpurl);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+			}else{
+				long pts = new Date().getTime() - presentationTimeUs;
+				Log.v("pts","pts:" + pts+"");
+				this.SendRTMPPacket(out, ret1, pts);
 			}
 		}
 	}
-
+	private void SendRTMPPacket(byte[] data,int len,long pts){
+		int ret = RTMPProcess(data, len, pts);
+		if (ret != 0) {
+			if (h264_is_dvbsp_error(ret)) {
+				Log.v("ignore", "ignore drop video error, code=" + ret);
+			}
+			else if (is_duplicated_sps_error(ret)) {
+				Log.v("ignore", "ignore duplicated sps, code=" + ret);
+			}
+			else if (is_duplicated_pps_error(ret)) {
+				Log.v("ignore", "ignore duplicated pps, code=" + ret);
+			}
+			else {
+				Log.e("error", "send h264 raw data failed, code=" + ret);
+				try {
+					this.Stop();
+					Thread.sleep(1000);
+					this.ConnectToRtmpUrl(_rtmpurl);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}else{
+			Log.v("send h.264 raw success","len = " + len + "");
+		}
+	}
 	private boolean is_duplicated_pps_error(int ret) {
 		// TODO Auto-generated method stub
 		return ret == 3043;

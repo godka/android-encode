@@ -56,18 +56,7 @@ public class AvcEncoder {
 		}
 		return null;
 	}
-
-	/*
-	 * private void swapYV12toI420(byte[] yv12bytes, byte[] i420bytes, int
-	 * width, int height) { switch(m_format){ case ImageFormat.NV21:
-	 * System.arraycopy(yv12bytes, 0, i420bytes, 0,width*height); for(int i =
-	 * width * height ; i < width * height + width * height / 2 ;i+= 2){
-	 * i420bytes[i] = yv12bytes[i + 1]; i420bytes[i + 1] = yv12bytes[i]; }
-	 * break; case ImageFormat.YV12: System.arraycopy(yv12bytes, 0, i420bytes,
-	 * 0,width*height*3/2); System.arraycopy(yv12bytes, width*height*5/4,
-	 * i420bytes, width*height,width*height/4); System.arraycopy(yv12bytes,
-	 * width*height, i420bytes, width*height*5/4,width*height/4); break; } }
-	 */
+	
 	/**
 	 * Returns a color format that is supported by the codec and by this test
 	 * code. If no match is found, this throws a test failure -- the set of
@@ -139,7 +128,7 @@ public class AvcEncoder {
 			ee.printStackTrace();
 		}
 		bufferInfo = new MediaCodec.BufferInfo();
-		presentationTimeUs = new Date().getTime() * 1000;
+		presentationTimeUs = new Date().getTime();
 		mediaCodec.start();
 	}
 
@@ -164,7 +153,7 @@ public class AvcEncoder {
 				ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
 				inputBuffer.clear();
 				inputBuffer.put(input);
-				long pts = new Date().getTime() * 1000 - presentationTimeUs;
+				long pts = new Date().getTime() - presentationTimeUs;
 				mediaCodec.queueInputBuffer(inputBufferIndex, 0, input.length, pts, 0);
 			}
 			ByteBuffer outputBuffer = null;

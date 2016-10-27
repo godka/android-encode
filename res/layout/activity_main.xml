@@ -6,9 +6,8 @@
     tools:context=".MainActivity" >
 
     <SurfaceView
-         android:id="@+id/SurfaceViewPlay"
+        android:id="@+id/SurfaceViewPlay"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-         />
+        android:layout_height="fill_parent" />
 
 </RelativeLayout>
